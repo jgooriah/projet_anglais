@@ -1,0 +1,12 @@
+{
+  "name": "english-sentence-betting-game",
+  "version": "1.0.0",
+  "description": "Simple browser game to practise English sentences with a betting system for teams.",
+  "private": true,
+  "scripts": {
+    "start": "echo \"Open index.html in your browser\""
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}
+

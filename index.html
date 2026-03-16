@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>English Sentence Betting Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="app-header-left">
+        <div class="app-logo">📘</div>
+        <div class="app-title-group">
+          <div class="app-subtitle">ENGLISH SENTENCE BETTING GAME</div>
+        </div>
+      </div>
+      <div class="app-header-right">
+        <div id="sentence-counter" class="sentence-counter">Sentence 1 / 10</div>
+        <button class="icon-button" type="button" aria-label="Settings">
+          ⚙️
+        </button>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <section class="sentence-card">
+        <div class="sentence-label">Current sentence:</div>
+        <p id="current-sentence" class="sentence-text">
+          <!-- Filled by JavaScript -->
+        </p>
+        <div id="answer-feedback" class="answer-feedback hidden">
+          <!-- Filled by JavaScript -->
+        </div>
+      </section>
+
+      <section class="controls-row">
+        <button id="reveal-btn" class="primary-button" type="button">
+          REVEAL ANSWER
+        </button>
+        <button id="next-btn" class="secondary-button" type="button" disabled>
+          NEXT SENTENCE
+        </button>
+      </section>
+
+      <section class="table-card">
+        <table class="teams-table">
+          <thead>
+            <tr>
+              <th>Team</th>
+              <th>Your Answer</th>
+              <th>Bet (points)</th>
+              <th>Points Left</th>
+            </tr>
+          </thead>
+          <tbody id="teams-body">
+            <!-- Filled by JavaScript -->
+          </tbody>
+        </table>
+      </section>
+
+      <section class="info-row">
+        <div class="info-icon">i</div>
+        <p class="info-text">Each team starts with <strong>10 points</strong>.</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
