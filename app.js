@@ -74,6 +74,8 @@ let currentSentenceIndex = 0;
 let hasRevealed = false;
 let roundTimer = null;
 let roundSecondsLeft = 20;
+let currentRole = "host";
+let currentPlayerTeamId = null;
 
 const sentenceEl = document.getElementById("current-sentence");
 const feedbackEl = document.getElementById("answer-feedback");
@@ -86,6 +88,16 @@ const startRoundBtn = document.getElementById("start-round-btn");
 const resetGameBtn = document.getElementById("reset-game-btn");
 const podiumEl = document.getElementById("podium");
 const podiumListEl = document.getElementById("podium-list");
+const roleOverlayEl = document.getElementById("role-overlay");
+const chooseHostBtn = document.getElementById("choose-host");
+const choosePlayerBtn = document.getElementById("choose-player");
+const playerConfigEl = document.getElementById("player-config");
+const playerTeamSelectEl = document.getElementById("player-team-select");
+const enterPlayerModeBtn = document.getElementById("enter-player-mode");
+const playerPanelEl = document.getElementById("player-panel");
+const playerTrueBtn = document.getElementById("player-true-btn");
+const playerFalseBtn = document.getElementById("player-false-btn");
+const playerBetInputEl = document.getElementById("player-bet-input");
 
 function formatPoints(points) {
   return `${points} pts`;
@@ -235,6 +247,18 @@ function setInputsEnabled(enabled) {
     });
     els.betInput.disabled = !enabled;
   });
+}
+
+function broadcastEvent(event) {
+  const payload = {
+    ...event,
+    ts: Date.now(),
+  };
+  try {
+    localStorage.setItem("betting-game-event", JSON.stringify(payload));
+  } catch (e) {
+    // ignore
+  }
 }
 
 function startRoundTimer() {
@@ -396,6 +420,21 @@ function resetGame() {
   resetRoundInputs();
 }
 
+function applyRemoteEvent(event) {
+  if (currentRole !== "host") return;
+
+  if (event.type === "answer") {
+    setTeamAnswer(event.teamId, event.answerIsTrue);
+  } else if (event.type === "bet") {
+    const team = teams.find((t) => t.id === event.teamId);
+    if (!team) return;
+    const els = getTeamRowElements(event.teamId);
+    if (!els || !els.betInput) return;
+    els.betInput.value = String(event.betValue);
+    clampBetInput(event.teamId);
+  }
+}
+
 function showPodium() {
   const ranked = [...teams].sort((a, b) => b.points - a.points);
   podiumListEl.innerHTML = "";
@@ -427,6 +466,52 @@ function init() {
   revealBtn.addEventListener("click", revealAnswer);
   nextBtn.addEventListener("click", nextSentence);
   resetGameBtn.addEventListener("click", resetGame);
+
+  chooseHostBtn.addEventListener("click", () => {
+    currentRole = "host";
+    roleOverlayEl.classList.add("hidden");
+    playerPanelEl.classList.add("hidden");
+  });
+
+  choosePlayerBtn.addEventListener("click", () => {
+    currentRole = "player";
+    playerConfigEl.classList.remove("hidden");
+  });
+
+  enterPlayerModeBtn.addEventListener("click", () => {
+    currentRole = "player";
+    currentPlayerTeamId = playerTeamSelectEl.value || "team-a";
+    roleOverlayEl.classList.add("hidden");
+    playerPanelEl.classList.remove("hidden");
+  });
+
+  playerTrueBtn.addEventListener("click", () => {
+    if (!currentPlayerTeamId) return;
+    broadcastEvent({ type: "answer", teamId: currentPlayerTeamId, answerIsTrue: true });
+  });
+
+  playerFalseBtn.addEventListener("click", () => {
+    if (!currentPlayerTeamId) return;
+    broadcastEvent({ type: "answer", teamId: currentPlayerTeamId, answerIsTrue: false });
+  });
+
+  playerBetInputEl.addEventListener("input", () => {
+    if (!currentPlayerTeamId) return;
+    let v = parseInt(playerBetInputEl.value, 10);
+    if (Number.isNaN(v) || v < 0) v = 0;
+    playerBetInputEl.value = String(v);
+    broadcastEvent({ type: "bet", teamId: currentPlayerTeamId, betValue: v });
+  });
+
+  window.addEventListener("storage", (e) => {
+    if (e.key !== "betting-game-event" || !e.newValue) return;
+    try {
+      const payload = JSON.parse(e.newValue);
+      applyRemoteEvent(payload);
+    } catch (err) {
+      // ignore invalid payload
+    }
+  });
 }
 
 document.addEventListener("DOMContentLoaded", init);

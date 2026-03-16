@@ -10,6 +10,38 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="role-overlay" id="role-overlay">
+    <div class="role-card">
+      <h1 class="role-title">Choose your mode</h1>
+      <p class="role-subtitle">Play like Kahoot: one host screen + players on their own devices.</p>
+
+      <div class="role-options">
+        <button id="choose-host" class="role-button role-button-host" type="button">
+          I am the host (teacher)
+        </button>
+        <button id="choose-player" class="role-button role-button-player" type="button">
+          I am a player
+        </button>
+      </div>
+
+      <div id="player-config" class="player-config hidden">
+        <label class="field">
+          <span class="field-label">Your team</span>
+          <select id="player-team-select" class="field-input">
+            <option value="team-a">Team A</option>
+            <option value="team-b">Team B</option>
+            <option value="team-c">Team C</option>
+            <option value="team-d">Team D</option>
+            <option value="team-e">Team E</option>
+          </select>
+        </label>
+        <button id="enter-player-mode" class="primary-button full-width" type="button">
+          Join as this team
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div class="app">
     <header class="app-header">
       <div class="app-header-left">
@@ -38,6 +70,23 @@
         <div id="answer-feedback" class="answer-feedback hidden">
           <!-- Filled by JavaScript -->
         </div>
+      </section>
+
+      <section id="player-panel" class="player-panel hidden">
+        <h2 class="player-panel-title">Your controls</h2>
+        <div class="player-answer-row">
+          <button id="player-true-btn" class="answer-button true" type="button">TRUE</button>
+          <button id="player-false-btn" class="answer-button false" type="button">FALSE</button>
+        </div>
+        <div class="player-bet-row">
+          <label class="field">
+            <span class="field-label">Your bet (points)</span>
+            <input id="player-bet-input" class="field-input" type="number" min="0" step="1" value="0" />
+          </label>
+        </div>
+        <p class="player-hint">
+          The host's screen shows the global scoreboard and final podium.
+        </p>
       </section>
 
       <section class="controls-row">
