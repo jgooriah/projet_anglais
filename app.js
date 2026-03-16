@@ -72,13 +72,20 @@ const teams = [
 
 let currentSentenceIndex = 0;
 let hasRevealed = false;
+let roundTimer = null;
+let roundSecondsLeft = 20;
 
 const sentenceEl = document.getElementById("current-sentence");
 const feedbackEl = document.getElementById("answer-feedback");
 const counterEl = document.getElementById("sentence-counter");
+const timerPillEl = document.getElementById("timer-pill");
 const teamsBodyEl = document.getElementById("teams-body");
 const revealBtn = document.getElementById("reveal-btn");
 const nextBtn = document.getElementById("next-btn");
+const startRoundBtn = document.getElementById("start-round-btn");
+const resetGameBtn = document.getElementById("reset-game-btn");
+const podiumEl = document.getElementById("podium");
+const podiumListEl = document.getElementById("podium-list");
 
 function formatPoints(points) {
   return `${points} pts`;
@@ -230,11 +237,46 @@ function setInputsEnabled(enabled) {
   });
 }
 
+function startRoundTimer() {
+  if (roundTimer) {
+    clearInterval(roundTimer);
+  }
+  roundSecondsLeft = 20;
+  timerPillEl.textContent = `${roundSecondsLeft}s`;
+  timerPillEl.classList.add("counting");
+  timerPillEl.classList.remove("ended");
+
+  setInputsEnabled(true);
+  hasRevealed = false;
+  revealBtn.disabled = false;
+
+  roundTimer = setInterval(() => {
+    roundSecondsLeft -= 1;
+    if (roundSecondsLeft <= 0) {
+      clearInterval(roundTimer);
+      roundTimer = null;
+      timerPillEl.textContent = "TIME UP";
+      timerPillEl.classList.remove("counting");
+      timerPillEl.classList.add("ended");
+      setInputsEnabled(false);
+      return;
+    }
+    timerPillEl.textContent = `${roundSecondsLeft}s`;
+  }, 1000);
+}
+
 function revealAnswer() {
   if (hasRevealed) return;
 
   const currentSentence = sentences[currentSentenceIndex];
   const correct = currentSentence.isCorrect;
+
+  if (roundTimer) {
+    clearInterval(roundTimer);
+    roundTimer = null;
+    timerPillEl.classList.remove("counting");
+    timerPillEl.classList.add("ended");
+  }
 
   teams.forEach((team) => {
     const els = getTeamRowElements(team.id);
@@ -277,6 +319,10 @@ function revealAnswer() {
   setInputsEnabled(false);
   revealBtn.disabled = true;
   nextBtn.disabled = currentSentenceIndex >= sentences.length - 1;
+
+  if (currentSentenceIndex >= sentences.length - 1) {
+    showPodium();
+  }
 }
 
 function nextSentence() {
@@ -285,6 +331,8 @@ function nextSentence() {
   hasRevealed = false;
   renderCurrentSentence();
   resetRoundInputs();
+  timerPillEl.textContent = "READY";
+  timerPillEl.classList.remove("counting", "ended");
 }
 
 function renderCurrentSentence() {
@@ -321,12 +369,64 @@ function resetRoundInputs() {
   nextBtn.disabled = true;
 }
 
+function resetGame() {
+  currentSentenceIndex = 0;
+  hasRevealed = false;
+  if (roundTimer) {
+    clearInterval(roundTimer);
+    roundTimer = null;
+  }
+
+  teams.forEach((team) => {
+    team.points = initialPoints;
+    team.currentAnswer = undefined;
+    const els = getTeamRowElements(team.id);
+    if (!els) return;
+    els.betInput.value = "0";
+    updatePointsPill(team);
+    els.row.classList.remove("team-row-correct", "team-row-incorrect");
+  });
+
+  timerPillEl.textContent = "READY";
+  timerPillEl.classList.remove("counting", "ended");
+  podiumEl.classList.add("hidden");
+  podiumListEl.innerHTML = "";
+
+  renderCurrentSentence();
+  resetRoundInputs();
+}
+
+function showPodium() {
+  const ranked = [...teams].sort((a, b) => b.points - a.points);
+  podiumListEl.innerHTML = "";
+
+  ranked.forEach((team, index) => {
+    const li = document.createElement("li");
+    li.textContent = `${index + 1}. ${team.name}`;
+    const scoreSpan = document.createElement("span");
+    scoreSpan.textContent = formatPoints(team.points);
+    li.appendChild(scoreSpan);
+
+    if (index === 0) li.classList.add("podium-rank-1");
+    else if (index === 1) li.classList.add("podium-rank-2");
+    else if (index === 2) li.classList.add("podium-rank-3");
+
+    podiumListEl.appendChild(li);
+  });
+
+  podiumEl.classList.remove("hidden");
+}
+
 function init() {
   renderTeamsTable();
   renderCurrentSentence();
 
+  timerPillEl.textContent = "READY";
+
+  startRoundBtn.addEventListener("click", startRoundTimer);
   revealBtn.addEventListener("click", revealAnswer);
   nextBtn.addEventListener("click", nextSentence);
+  resetGameBtn.addEventListener("click", resetGame);
 }
 
 document.addEventListener("DOMContentLoaded", init);

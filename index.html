@@ -19,9 +19,12 @@
         </div>
       </div>
       <div class="app-header-right">
-        <div id="sentence-counter" class="sentence-counter">Sentence 1 / 10</div>
-        <button class="icon-button" type="button" aria-label="Settings">
-          ⚙️
+        <div class="game-status-group">
+          <div id="timer-pill" class="timer-pill">READY</div>
+          <div id="sentence-counter" class="sentence-counter">Sentence 1 / 10</div>
+        </div>
+        <button id="reset-game-btn" class="icon-button" type="button" aria-label="Reset game">
+          🔁
         </button>
       </div>
     </header>
@@ -38,7 +41,10 @@
       </section>
 
       <section class="controls-row">
-        <button id="reveal-btn" class="primary-button" type="button">
+        <button id="start-round-btn" class="secondary-button" type="button">
+          START ROUND
+        </button>
+        <button id="reveal-btn" class="primary-button" type="button" disabled>
           REVEAL ANSWER
         </button>
         <button id="next-btn" class="secondary-button" type="button" disabled>
@@ -64,7 +70,17 @@
 
       <section class="info-row">
         <div class="info-icon">i</div>
-        <p class="info-text">Each team starts with <strong>10 points</strong>.</p>
+        <p class="info-text">
+          Each team starts with <strong>10 points</strong>. Start the round, let teams lock
+          their TRUE/FALSE + bet before the timer finishes, then reveal the answer.
+        </p>
+      </section>
+
+      <section id="podium" class="podium hidden">
+        <div class="podium-title">Final podium</div>
+        <ol id="podium-list" class="podium-list">
+          <!-- Filled by JavaScript -->
+        </ol>
       </section>
     </main>
   </div>
