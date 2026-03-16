@@ -249,8 +249,12 @@ function revealAnswer() {
     const wasCorrect = answer === correct;
     if (wasCorrect) {
       team.points += bet;
+      els.row.classList.remove("team-row-incorrect");
+      els.row.classList.add("team-row-correct");
     } else {
       team.points = Math.max(0, team.points - bet);
+      els.row.classList.remove("team-row-correct");
+      els.row.classList.add("team-row-incorrect");
     }
     updatePointsPill(team);
   });
@@ -303,6 +307,8 @@ function resetRoundInputs() {
       btn.classList.remove("selected");
       delete btn.dataset.selected;
     });
+
+    els.row.classList.remove("team-row-correct", "team-row-incorrect");
 
     els.betInput.value = "0";
     els.betInput.disabled = false;
