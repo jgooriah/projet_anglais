@@ -72,13 +72,9 @@ const teams = [
 
 let currentSentenceIndex = 0;
 let hasRevealed = false;
-let roundTimer = null;
-let roundSecondsLeft = 0;
-
 const sentenceEl = document.getElementById("current-sentence");
 const feedbackEl = document.getElementById("answer-feedback");
 const counterEl = document.getElementById("sentence-counter");
-const timerPillEl = document.getElementById("timer-pill");
 const teamsBodyEl = document.getElementById("teams-body");
 const revealBtn = document.getElementById("reveal-btn");
 const nextBtn = document.getElementById("next-btn");
@@ -239,22 +235,11 @@ function setInputsEnabled(enabled) {
   });
 }
 
-function startRoundTimer() {
-  // simple highlight of activity, no countdown
-  timerPillEl.textContent = "IN PROGRESS";
-  timerPillEl.classList.add("counting");
-  timerPillEl.classList.remove("ended");
-}
-
 function revealAnswer() {
   if (hasRevealed) return;
 
   const currentSentence = sentences[currentSentenceIndex];
   const correct = currentSentence.isCorrect;
-
-  timerPillEl.textContent = "ANSWER SHOWN";
-  timerPillEl.classList.remove("counting");
-  timerPillEl.classList.add("ended");
 
   teams.forEach((team) => {
     const els = getTeamRowElements(team.id);
@@ -309,8 +294,6 @@ function nextSentence() {
   hasRevealed = false;
   renderCurrentSentence();
   resetRoundInputs();
-  timerPillEl.textContent = "READY";
-  timerPillEl.classList.remove("counting", "ended");
 }
 
 function renderCurrentSentence() {
@@ -350,11 +333,6 @@ function resetRoundInputs() {
 function resetGame() {
   currentSentenceIndex = 0;
   hasRevealed = false;
-  if (roundTimer) {
-    clearInterval(roundTimer);
-    roundTimer = null;
-  }
-
   teams.forEach((team) => {
     team.points = initialPoints;
     team.currentAnswer = undefined;
@@ -365,8 +343,6 @@ function resetGame() {
     els.row.classList.remove("team-row-correct", "team-row-incorrect");
   });
 
-  timerPillEl.textContent = "READY";
-  timerPillEl.classList.remove("counting", "ended");
   podiumEl.classList.add("hidden");
   podiumListEl.innerHTML = "";
 
@@ -402,8 +378,6 @@ function showPodium() {
 function init() {
   renderTeamsTable();
   renderCurrentSentence();
-
-  timerPillEl.textContent = "READY";
 
   revealBtn.addEventListener("click", revealAnswer);
   nextBtn.addEventListener("click", nextSentence);
