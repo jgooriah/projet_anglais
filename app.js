@@ -76,6 +76,7 @@ let roundTimer = null;
 let roundSecondsLeft = 20;
 let currentRole = "host";
 let currentPlayerTeamId = null;
+let broadcastChannel = null;
 
 const sentenceEl = document.getElementById("current-sentence");
 const feedbackEl = document.getElementById("answer-feedback");
@@ -250,10 +251,16 @@ function setInputsEnabled(enabled) {
 }
 
 function broadcastEvent(event) {
-  const payload = {
-    ...event,
-    ts: Date.now(),
-  };
+  const payload = { ...event, ts: Date.now() };
+
+  if (broadcastChannel) {
+    try {
+      broadcastChannel.postMessage(payload);
+    } catch (e) {
+      // ignore
+    }
+  }
+
   try {
     localStorage.setItem("betting-game-event", JSON.stringify(payload));
   } catch (e) {
@@ -461,6 +468,16 @@ function init() {
   renderCurrentSentence();
 
   timerPillEl.textContent = "READY";
+
+  try {
+    broadcastChannel = new BroadcastChannel("betting-game-channel");
+    broadcastChannel.onmessage = (ev) => {
+      if (!ev || !ev.data) return;
+      applyRemoteEvent(ev.data);
+    };
+  } catch (e) {
+    broadcastChannel = null;
+  }
 
   startRoundBtn.addEventListener("click", startRoundTimer);
   revealBtn.addEventListener("click", revealAnswer);
